@@ -1,4 +1,5 @@
 docker/
 issue_cert_localhost.lock
 caddy/caddy/certificates/
-data/caddy/caddy/
+data/caddy/caddy/__pycache__/
+*.pyc
