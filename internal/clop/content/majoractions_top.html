@@ -1,0 +1,39 @@
+<center>Major, nation-altering actions are here.</center>
+<center>Don't click on anything here unless you are very, very sure that it's what you want to do!</center>
+<center><table class="table table-striped table-bordered">
+<tr><td><div class="row">
+	<div class="col-md-6"><p>
+    Change the top message. This message overwrites the current one and can be overwritten by anyone else with 5 million bits to spend.
+    </p></div>
+	<div class="col-md-1"><p class="text-danger">5,000,000</p></div>
+	<div class="col-md-5">
+		<form action="majoractions.php" method="post">
+            <input type="hidden" name="token_majoractions" value="{$_SESSION['token_majoractions']}"/>
+			<div class="row">
+				<div class="col-xs-7">
+                    <input type="text" name="message" value="" class="form-control"/><br/>
+					<input type="submit" name="topmessage" value="Change Top Message" class="btn btn-warning btn-sm btn-block"/>
+				</div>
+			</div>
+		</form>
+	</div>
+</div></td></tr>
+<tr><td><div class="row">
+	<div class="col-md-6"><p>
+    Change your nation's name. The price of this is dependent on how large your nation is; due to the immense complications involved, it costs 250,000 bits per building you own.<br/>
+    You also lose 500 satisfaction as your ponies react to the loss of their former nationality.
+    </p></div>
+	<div class="col-md-1"><p class="text-danger">{$displaynewnameprice}</p></div>
+	<div class="col-md-5">
+		<form action="majoractions.php" method="post">
+            <input type="hidden" name="token_majoractions" value="{$_SESSION['token_majoractions']}"/>
+			<div class="row">
+				<div class="col-xs-7">
+                    <input type="text" name="nationname" value="{$nationinfo['name']}" class="form-control"/><br/>
+					<input type="submit" onclick="return confirm('Really change your nation\'s name?')" name="changename" value="Change Name" class="btn btn-danger btn-sm btn-block"/>
+				</div>
+			</div>
+		</form>
+	</div>
+</div></td></tr>
+</table></center>

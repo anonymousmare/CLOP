@@ -1,0 +1,66 @@
+<center><table class="table table-striped table-bordered">
+<tr><td><div class="row">
+	<div class="col-md-6"><p>
+    Alter your government to be one based on Authoritarianism.<br/><br/>
+    Creating the machinery of Authoritarianism requires 20 million bits and 70 machinery parts.<br/>
+    An Authoritarian government conducts commerce with no one except its allies; therefore, you may not conduct any sort of trading with a nation owned by a player not in your alliance.<br/>
+    However, your GDP is always 2.5 times its base value, as if you had a satisfaction of 1500.<br/>
+    Your satisfaction can dip all the way to -400 before your ponies revolt. If you cannot pay for these items, you lose 400 satisfaction a turn once your ponies realize revolution is possible.<br/>
+    An Authoritarian government uses 10 gasoline and 3 machinery parts a turn.<br/>
+    An Authoritarian government loses you 3 relationship with the New Lunar Republic and gives you 4 relationship with the Solar Empire every turn.<br/>
+    <b>Once one of your nations switches to Authoritarianism, all of them switch to Authoritarianism.</b>
+    </p></div>
+	<div class="col-md-1"><p class="text-danger">20,000,000</p></div>
+	<div class="col-md-5">
+		<form action="majoractions.php" method="post">
+            <input type="hidden" name="token_majoractions" value="{$_SESSION['token_majoractions']}"/>
+			<div class="row">
+				<div class="col-xs-7">
+					<input type="submit" onclick="return confirm('Really convert to Authoritarianism?')" name="authoritarianism" value="Convert to Authoritarianism" class="btn btn-danger btn-sm btn-block"/>
+				</div>
+			</div>
+		</form>
+	</div>
+</div></td></tr>
+<tr><td><div class="row">
+	<div class="col-md-6"><p>
+    Alter your government to be one based on Oppression.<br/><br/>
+    Building the machinery of Oppression requires 30 million bits and 100 machinery parts.<br/>
+    An Oppressive empire may not trade or deal with anyone. The only method of moving resources back and forth is transfers.<br/>
+    <b>Therefore, if you do not have three, perhaps four, different regions in your empire, choosing an Oppressive government is suicide.</b></br>
+    However, the trains run on time; your GDP is always triple its base value, as if you had a satisfaction of 2000.<br/>
+    Your satisfaction can dip all the way to -500 before your ponies revolt, and your satisfaction penalty for having a large empire is a third of what it otherwise would be.</br>
+    The machinery of Oppression uses 10 gasoline and 5 machinery parts a turn. If you cannot pay for these items, you lose 500 satisfaction a turn once your ponies realize revolution is possible.<br/>
+    An Oppressive government loses you 3 relationship with the New Lunar Republic and gives you 6 relationship with the Solar Empire every turn.<br/>
+    <b>Once one of your nations switches to Oppression, all of them switch to Oppression.</b>
+    </p></div>
+	<div class="col-md-1"><p class="text-danger">30,000,000</p></div>
+	<div class="col-md-5">
+		<form action="majoractions.php" method="post">
+            <input type="hidden" name="token_majoractions" value="{$_SESSION['token_majoractions']}"/>
+			<div class="row">
+				<div class="col-xs-7">
+					<input type="submit" onclick="return confirm('Really convert to Oppression?')" name="oppression" value="Convert to Oppression" class="btn btn-danger btn-sm btn-block"/>
+				</div>
+			</div>
+		</form>
+	</div>
+</div></td></tr>
+<tr><td><div class="row">
+	<div class="col-md-6"><p>
+    Revert your government to be a Loose Despotism.<br/><br/>
+    Dismantling the repressive state costs 5,000,000 bits to bribe away all of the ponies that you placed in charge.
+    </p></div>
+	<div class="col-md-1"><p class="text-danger">5,000,000</p></div>
+	<div class="col-md-5">
+		<form action="majoractions.php" method="post">
+            <input type="hidden" name="token_majoractions" value="{$_SESSION['token_majoractions']}"/>
+			<div class="row">
+				<div class="col-xs-7">
+					<input type="submit" onclick="return confirm('Really revert to Loose Despotism?')" name="loosedespotism" value="Revert to Loose Despotism" class="btn btn-danger btn-sm btn-block"/>
+				</div>
+			</div>
+		</form>
+	</div>
+</div></td></tr>
+</table></center>

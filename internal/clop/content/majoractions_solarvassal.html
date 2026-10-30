@@ -1,0 +1,22 @@
+<center><table class="table table-striped table-bordered">
+<tr><td><div class="row">
+	<div class="col-md-6"><p>
+    Become a vassal state of the Solar Empire.<br/>
+    <br/>
+    The Solar Empire requires surprisingly little of its vassals; as your entire government is devoted to its worship, it no longer requests that you build facilities for it,
+    nor is there any upkeep that requires payment every turn. However, your satisfaction is capped at a mere 1,250, as your ponies accept stability but not independence.<br/>
+    You will no longer be able to sell or produce drugs, and your relationship with the Solar Empire will be kept at 1000.<br/>
+    </p></div>
+	<div class="col-md-1"><p class="text-danger">0</p></div>
+	<div class="col-md-5">
+		<form action="majoractions.php" method="post">
+            <input type="hidden" name="token_majoractions" value="{$_SESSION['token_majoractions']}"/>
+			<div class="row">
+				<div class="col-xs-7">
+					<input type="submit" onclick="return confirm('Really become a vassal state of the Solar Empire?')" name="solarvassal" value="Become Vassal" class="btn btn-danger btn-sm btn-block"/>
+				</div>
+			</div>
+		</form>
+	</div>
+</div></td></tr>
+</table></center>

@@ -1,0 +1,20 @@
+<center><table class="table table-striped table-bordered">
+<tr><td><div class="row">
+	<div class="col-md-6"><p>
+    Revert your economy to be Poorly Defined.<br/>
+    <br/>
+    Dismantling the Free Market costs 1,000,000 bits and results in economic chaos, causing a brutal 500 satisfaction loss.
+    </p></div>
+	<div class="col-md-1"><p class="text-danger">1,000,000</p></div>
+	<div class="col-md-5">
+		<form action="majoractions.php" method="post">
+            <input type="hidden" name="token_majoractions" value="{$_SESSION['token_majoractions']}"/>
+			<div class="row">
+				<div class="col-xs-7">
+					<input type="submit" onclick="return confirm('Really revert to a Poorly Defined economy?')" name="poorlydefined" value="Revert to Poorly Defined"
+					class="btn btn-danger btn-sm btn-block"/>
+				</div>
+			</div>
+		</form>
+	</div></td></tr>
+</table></center>
