@@ -1,0 +1,56 @@
+<center>With the default poorly defined economy, you can <b>accept, but not initiate, deals.</b></center>
+<center>If you have an empire, you can currently transfer items between your empire's nations for 200 bits and money at a 3% fee.</center>
+<center><table class="table table-striped table-bordered">
+<tr><td><div class="row">
+	<div class="col-md-6"><p>
+    Shift your economy to be a Free Market.<br/>
+    <br/>
+    By hiring caffeinated ponies to help the rapid and economical shift of goods, you pay only 3% when buying or selling on the marketplace.<br/>
+    However, you will not be able to even accept deals at all, as such state control is against everything your new economists believe in.<br/>
+    Performing this action requires a whopping 500 copper to build the infrastructure and 25 coffee to get started along with the 1,000,000 bit cost.<br/>
+    If you cannot provide your ponies with 6 coffee each turn, they will fall asleep at their desks; the resulting confusion will lower your nation's satisfaction
+    by a seriously threatening 25 every turn that they are asleep. Furthermore, your marketplace advantage will be nullified back to 10%/10%.<br/>
+    Your costs of transferring between empires will rise to 400 per item and 6% for bits.<br/>
+    Having this government type raises your relations with the New Lunar Republic by 1 and lowers them with the Solar Empire by 3 every turn.<br/>
+    </p></div>
+	<div class="col-md-1"><p class="text-danger">1,000,000</p></div>
+	<div class="col-md-5">
+		<form action="majoractions.php" method="post">
+            <input type="hidden" name="token_majoractions" value="{$_SESSION['token_majoractions']}"/>
+			<div class="row">
+				<div class="col-xs-7">
+					<input type="submit" onclick="return confirm('Really switch to a Free Market economy?')" name="freemarket" value="Switch to Free Market" class="btn btn-danger btn-sm btn-block"/>
+				</div>
+			</div>
+		</form>
+	</div>
+</div></td></tr>
+<tr><td><div class="row">
+	<div class="col-md-6"><p>
+    Shift your economy to be State Controlled.<br/>
+    <br/>
+    By hiring drunken ponies to make friends and grease palms, you become able to initiate deals. Making a deal costs you, the originator, 100 bits per item transferred each way, no matter what
+    item it is. Additionally, you can transfer money through deals for free.<br/>
+    However, you will pay 20% when buying and 15% when selling on the marketplace, as the corrupt bureaucrats skim a little off the top.<br/>
+    Performing this action requires a whopping 500 copper to build the infrastructure and 25 cider to get started along with the 1,000,000 bit cost.<br/>
+    If you cannot provide your ponies with 6 cider each turn, they will become sober and surly; the resulting confusion will lower your nation's satisfaction
+    by a seriously threatening 25 every turn that they are sober. Furthermore, you will not be able to make deals.<br/>
+    Transferring bits and items between empires is free with this economy.<br/>
+    Having this government type raises your relations with the Solar Empire by 1 and lowers them with the New Lunar Republic by 3 every turn.<br/>
+    </p></div>
+	<div class="col-md-1"><p class="text-danger">1,000,000</p></div>
+	<div class="col-md-5">
+		<form action="majoractions.php" method="post">
+            <input type="hidden" name="token_majoractions" value="{$_SESSION['token_majoractions']}"/>
+			<div class="row">
+				<div class="col-xs-7">
+					<input type="submit" onclick="return confirm('Really switch to a State Controlled economy?')" name="statecontrolled" value="Switch to State Controlled" class="btn btn-danger btn-sm btn-block"/>
+				</div>
+			</div>
+		</form>
+	</div>
+</div></td></tr>
+</table></center>
+<form name="selecteconomy" action="majoractions.php">
+<input type="hidden" name="token_majoractions" value="{$_SESSION['token_majoractions']}"/>
+</form>

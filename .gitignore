@@ -2,3 +2,6 @@ docker/
 issue_cert_localhost.lock
 caddy/caddy/certificates/
 data/caddy/caddy/
+# Go build output
+/clop-server
+/bin/

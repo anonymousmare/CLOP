@@ -1,0 +1,19 @@
+<center><table class="table table-striped table-bordered">
+<tr><td><div class="row">
+	<div class="col-md-6"><p>
+    Revert your government to be a Democracy.<br/><br/>
+    Removing your ponies' independence costs only bits and no resources, but it will result in a devastating satisfaction loss of 2,000.
+    </p></div>
+	<div class="col-md-1"><p class="text-danger">5,000,000</p></div>
+	<div class="col-md-5">
+		<form action="majoractions.php" method="post">
+            <input type="hidden" name="token_majoractions" value="{$_SESSION['token_majoractions']}"/>
+			<div class="row">
+				<div class="col-xs-7">
+					<input type="submit" onclick="return confirm('Really revert to Democracy?')" name="democracy" value="Revert to Democracy" class="btn btn-danger btn-sm btn-block"/>
+				</div>
+			</div>
+		</form>
+	</div>
+</div></td></tr>
+</table></center>

@@ -33,21 +33,20 @@ services:
     ports:
       - 127.0.0.1:8080:8080
 
-  apache-php:
-    image: hostanon/clop:php-5.4-apache
+  clop:
+    build: .
     networks:
       - internal
       - default
     volumes:
-      - ./clop:/var/www/html:ro
-    command: |
-      bash -c "
-      docker-php-ext-install mysqli &&
-      docker-php-ext-enable mysqli &&
-      exec apache2-foreground"
+      - ./clop:/app/clop:ro
     environment:
+      MYSQL_HOST: mariadb:3306
       MYSQL_PASS: ${MYSQL_PASS}
       DOMAIN_URL: ${DOMAIN_URL}
+      SECURE_COOKIES: "1"
+    depends_on:
+      - mariadb
 
   caddy:
     image: hostanon/clop:caddy-2-alpine

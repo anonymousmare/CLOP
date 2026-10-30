@@ -1,0 +1,51 @@
+    <table class="table table-striped table-bordered">
+<tr><td><div class="row">
+	<div class="col-md-6"><p>
+    Shift your government to be a Democracy.<br/>
+    <br/>
+    Through the free movement permitted by widespread vehicle use, you alter your society to be a partial democracy in which ponies are capable of making local decisions on their own.
+    (All real decisions are still made by you.)<br/>
+    This open society raises the cap of satisfaction to 1500 and decreases the losses you get from high satisfaction accordingly; under a Democracy, you lose as much sat at 1500 as you lose at
+    1000 under a Loose Despotism.<br/>
+    Performing this action requires 300 copper, 60 gasoline, and 30 vehicle parts to get started along with the 2,000,000 bit cost.<br/>
+    If you cannot provide your ponies with 20 gasoline and 2 vehicle parts each turn, they will lose 20 satisfaction every turn. However, if their vehicles are able to run,
+    they gain 15 satisfaction a turn.<br/>
+    If your satisfaction goes below 0, your pretense of Democracy goes out the window and rebels appear.<br/>
+    Having this government type raises your relations with the New Lunar Republic by 2 and lowers them with the Solar Empire by 3 every turn.<br/>
+    </p></div>
+	<div class="col-md-1"><p class="text-danger">2,000,000</p></div>
+	<div class="col-md-5">
+		<form action="majoractions.php" method="post">
+            <input type="hidden" name="token_majoractions" value="{$_SESSION['token_majoractions']}"/>
+			<div class="row">
+				<div class="col-xs-7">
+					<input type="submit" onclick="return confirm('Really switch to a government of Democracy?')" name="democracy" value="Switch to Democracy" class="btn btn-danger btn-sm btn-block"/>
+				</div>
+			</div>
+		</form>
+	</div>
+</div></td></tr>
+<tr><td><div class="row">
+	<div class="col-md-6"><p>
+    Shift your government to be one based on Repression.<br/>
+    <br/>
+    You hire the most brutal and oppressive ponies you can find to patrol the streets and make the rest of them work at a steady rate.<br/>
+    Your GDP is always twice its base value, as if you had a satisfaction of 1000. Your ponies' actual satisfaction no longer has an effect on GDP. Furthermore, your ponies'
+    satisfaction can dip down to -300 before they revolt.<br/>
+    Performing this action requires 200 copper, 20 gasoline, 10 vehicle parts, and 1,000,000 bits.<br/>
+    If you cannot provide the machinery of oppression with at least 10 gasoline a turn, you lose 50 sat per turn as revolutionary feeling spreads.<br/>
+    Having this government type raises your relations with the Solar Empire by 2 and lowers them with the New Lunar Republic by 3 every turn.<br/>
+    </p></div>
+	<div class="col-md-1"><p class="text-danger">1,000,000</p></div>
+	<div class="col-md-5">
+		<form action="majoractions.php" method="post">
+            <input type="hidden" name="token_majoractions" value="{$_SESSION['token_majoractions']}"/>
+			<div class="row">
+				<div class="col-xs-7">
+					<input type="submit" onclick="return confirm('Really switch to a government of Repression?')" name="repression" value="Switch to Repression" class="btn btn-danger btn-sm btn-block"/>
+				</div>
+			</div>
+		</form>
+	</div>
+</div></td></tr>
+</table></center>
