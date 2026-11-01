@@ -47,287 +47,326 @@
             18: [0.40, 0.40, 0.40, 0.40, 0.40]
         };
 
-        var calcForceTypes = {"Cavalry": 1, "Tanks": 2, "Pegasi": 3, "Unicorns": 4, "Naval": 5, "Alicorns": 6};
-        var calcTypeOrder = ["Cavalry", "Tanks", "Pegasi", "Unicorns", "Naval", "Alicorns"];
-        var calcWeapons = {"ScroungedWeapons": 0, "PRC-E6": 1, "PRC-E7": 2, "PRC-E8": 3, "ACFU": 4, "ATFU": 5, "APFU": 6, "AUFU": 7, "K9P": 8,
+        var forcetypes = {"Cavalry": 1, "Tanks": 2, "Pegasi": 3, "Unicorns": 4, "Naval": 5, "Alicorns": 6};
+        var forcetypeNames = ["Cavalry", "Tanks", "Pegasi", "Unicorns", "Naval", "Alicorns"];
+        var weapontypes = {"ScroungedWeapons": 0, "PRC-E6": 1, "PRC-E7": 2, "PRC-E8": 3, "ACFU": 4, "ATFU": 5, "APFU": 6, "AUFU": 7, "K9P": 8,
             "ELBO-GRS": 9, "Chem-LightBattery": 10, "PropWash": 11, "SteamBucket": 12, "CanopyLights": 13, "LongStand": 14, "LongWeight": 15,
             "GridSquares": 16, "Shoreline": 17, "WaterHammer": 18, "WaterlineEraser": 19};
-        var calcArmor = {"ScroungedArmor": 0, "Barding": 1, "Bigdog": 2, "Nope": 3, "Trundle": 4, "Shepherd": 5, "Ohno": 6, "Titan": 7,
+        var armortypes = {"ScroungedArmor": 0, "Barding": 1, "Bigdog": 2, "Nope": 3, "Trundle": 4, "Shepherd": 5, "Ohno": 6, "Titan": 7,
             "Cooler": 8, "Wonder": 9, "Griffin": 10, "Dragon": 11, "Hornshield": 12, "Librarian": 13, "Shining": 14, "D2A": 15, "C-PON3": 16,
             "Esohes": 17, "Shubidu": 18};
 
         var TRAINING_POW = [0.6666666666666666, 0.6803201024329685, 0.6942531626616071, 0.7084715741045352, 0.7229811807984657,
-            0.7377879464668811, 0.7528979569712371, 0.7683174228123669, 0.7840526816831158, 0.8001102010732513, 0.8164965809277261,
-            0.8332185563593787, 0.8502830004171938, 0.8676969269112558, 0.8854674932955561, 0.9036020036098448, 0.9221079114817278,
-            0.9409928231902496, 0.960264500792218, 0.9799308653125576, 1, 1.0204801536494528, 1.0413797439924106, 1.0627073611568028,
-            1.0844717711976986, 1.1066819197003217, 1.1293469354568555, 1.1524761342185503, 1.1760790225246736, 1.200165301609877,
+            0.7377879464668811, 0.752897956971237, 0.7683174228123669, 0.7840526816831157, 0.8001102010732514, 0.816496580927726,
+            0.8332185563593787, 0.8502830004171938, 0.8676969269112557, 0.8854674932955561, 0.9036020036098449, 0.9221079114817278,
+            0.9409928231902495, 0.960264500792218, 0.9799308653125577, 1, 1.0204801536494528, 1.0413797439924106, 1.062707361156803,
+            1.0844717711976986, 1.1066819197003215, 1.1293469354568555, 1.1524761342185503, 1.1760790225246736, 1.200165301609877,
             1.224744871391589, 1.249827834539068, 1.2754245006257907, 1.3015453903668834, 1.328201239943334, 1.3554030054147672,
             1.3831618672225916, 1.4114892347853742, 1.440396751188327, 1.4698962979688366, 1.5];
+
+        var POW10 = [1e0, 1e1, 1e2, 1e3, 1e4, 1e5, 1e6, 1e7, 1e8, 1e9, 1e10, 1e11, 1e12, 1e13, 1e14, 1e15, 1e16, 1e17, 1e18, 1e19, 1e20, 1e21, 1e22];
+        var LOG10_STEPS = [1e-8, 1e-7, 1e-6, 1e-5, 1e-4, 1e-3, 1e-2, 1e-1, 1e0, 1e1, 1e2, 1e3, 1e4, 1e5, 1e6, 1e7,
+            1e8, 1e9, 1e10, 1e11, 1e12, 1e13, 1e14, 1e15, 1e16, 1e17, 1e18, 1e19, 1e20, 1e21, 1e22];
 
         function own(obj, key) {
             return Object.prototype.hasOwnProperty.call(obj, key);
         }
 
-        function toInt(s) {
-            s = String(s).replace(/^[ \t\n\r\v\f]+/, "");
-            var m = /^[-+]?[0-9]*/.exec(s)[0];
-            if (!/[0-9]/.test(m)) return 0;
-            return parseInt(m, 10);
+        function trainingFactor(diff) {
+            return diff >= -20 && diff <= 20 ? TRAINING_POW[diff + 20] : Math.pow(1.5, diff / 20);
         }
 
-        function round(f, precision) {
-            var p = Math.pow(10, precision);
-            var x = f * p;
-            return (x < 0 ? -Math.round(-x) : Math.round(x)) / p;
+        function phpEmpty(v) {
+            return v === undefined || v === null || v === "" || v === "0";
         }
 
-        function esc(s) {
-            return String(s).replace(/[&'<>"]/g, function (c) {
-                return {"&": "&amp;", "'": "&#39;", "<": "&lt;", ">": "&gt;", '"': "&#34;"}[c];
-            });
+        function phpIntlog10abs(v) {
+            v = Math.abs(v);
+            if (v < 1e-8 || v > 1e22) return Math.floor(Math.log10(v));
+            var r = 15;
+            r += v < LOG10_STEPS[r] ? -8 : 8;
+            r += v < LOG10_STEPS[r] ? -4 : 4;
+            r += v < LOG10_STEPS[r] ? -2 : 2;
+            r += v < LOG10_STEPS[r] ? -1 : 1;
+            if (v < LOG10_STEPS[r]) r -= 1;
+            return r - 8;
         }
 
-        function phpFloat(f) {
-            if (f === Math.trunc(f) && Math.abs(f) < 1e15) return String(f);
-            if (isNaN(f)) return "NaN";
-            if (f === Infinity) return "+Inf";
-            if (f === -Infinity) return "-Inf";
-            var m = /^(-?)(\d)(?:\.(\d+))?e([+-]\d+)$/.exec(f.toExponential(13));
-            var sign = m[1], digits = (m[2] + (m[3] || "")).replace(/0+$/, "") || "0";
-            var nd = digits.length, exp = parseInt(m[4], 10), dp = exp + 1;
-            var eprec = 14;
-            if (eprec > nd && nd >= dp) eprec = nd;
-            if (exp < -4 || exp >= eprec) {
-                var mant = digits[0] + (nd > 1 ? "." + digits.slice(1) : "");
-                var e = Math.abs(exp);
-                return sign + mant + "E" + (exp < 0 ? "-" : "+") + (e < 10 ? "0" : "") + e;
-            }
-            var decimals = Math.max(nd - dp, 0), intPart, frac;
-            if (dp <= 0) {
-                intPart = "0";
-                frac = "0".repeat(-dp) + digits;
+        function phpIntpow10(p) {
+            return (p < 0 || p > 22) ? Math.pow(10, p) : POW10[p];
+        }
+
+        function phpRoundHelper(v) {
+            return v >= 0 ? Math.floor(v + 0.5) : Math.ceil(v - 0.5);
+        }
+
+        function phpRound(value, places) {
+            if (value === null || value === undefined) value = 0;
+            if (!isFinite(value) || value === 0) return value;
+            var precisionPlaces = 14 - phpIntlog10abs(value);
+            var f1 = phpIntpow10(Math.abs(places)), t;
+            if (precisionPlaces > places && precisionPlaces - places < 15) {
+                t = precisionPlaces >= 0 ? value * phpIntpow10(precisionPlaces) : value / phpIntpow10(-precisionPlaces);
+                t = phpRoundHelper(t);
+                t = t / phpIntpow10(Math.abs(places - precisionPlaces));
             } else {
-                var padded = digits + "0".repeat(Math.max(dp - nd, 0));
-                intPart = padded.slice(0, dp);
-                frac = padded.slice(dp);
+                t = places >= 0 ? value * f1 : value / f1;
+                if (Math.abs(t) >= 1e15) return value;
             }
-            frac = frac.slice(0, decimals);
-            return sign + intPart + (decimals > 0 ? "." + frac : "");
+            t = phpRoundHelper(t);
+            return places > 0 ? t / f1 : t * f1;
         }
 
-        function newUnit(forceID, nationID, name, size, training, type, weaponID, armorID, attacking) {
-            var u = {forceID: forceID, nationID: nationID, name: name, size: size, training: training, type: type,
-                attacking: attacking, dmg: [0, 0, 0, 0, 0, 0], arm: [0, 0, 0, 0, 0, 0], hits: 0, damage: 0};
-            for (var t = 1; t <= 5; t++) {
-                if (u.type === 6) {
-                    u.dmg[t] = 10;
-                    u.arm[t] = .1;
-                } else {
-                    u.dmg[t] = .25;
-                    u.arm[t] = 1;
-                    if (weaponID !== 0 && own(WEAPONDEFS, weaponID)) u.dmg[t] = WEAPONDEFS[weaponID][t - 1];
-                    if (armorID !== 0 && own(ARMORDEFS, armorID)) u.arm[t] = ARMORDEFS[armorID][t - 1];
-                }
+        function digits14(x) {
+            var view = new DataView(new ArrayBuffer(8));
+            view.setFloat64(0, x);
+            var hi = view.getUint32(0), lo = view.getUint32(4);
+            var biased = (hi >>> 20) & 0x7ff;
+            var mant = (BigInt(hi & 0xfffff) << 32n) | BigInt(lo);
+            if (biased === 0) biased = 1; else mant |= 1n << 52n;
+            var e = biased - 1075, str, decpt;
+            if (e >= 0) {
+                str = (mant << BigInt(e)).toString();
+                decpt = str.length;
+            } else {
+                str = (mant * 5n ** BigInt(-e)).toString();
+                decpt = str.length + e;
             }
-            if (u.type === 6) u.type = 5;
-            return u;
-        }
-
-        function bySizeNationForce(a, b) {
-            if (a.size !== b.size) return a.size > b.size ? -1 : 1;
-            if (a.nationID !== b.nationID) return a.nationID < b.nationID ? -1 : 1;
-            if (a.forceID !== b.forceID) return a.forceID < b.forceID ? -1 : 1;
-            return 0;
-        }
-
-        function Battle() {
-            this.units = [];
-            this.shielded = null;
-            this.hits = [];
-            this.hitByID = {};
-        }
-
-        Battle.prototype.side = function (attacking) {
-            return this.units.filter(function (u) { return u.attacking === attacking; });
-        };
-
-        Battle.prototype.run = function () {
-            this.hitByID = {};
-            this.units.forEach(function (u) { u.hits = u.size; });
-            var invaders = this.side(true), repellers = this.side(false);
-            if (repellers.length === 0) return;
-            this.strike(invaders, repellers, this.shielded);
-            this.strike(repellers, invaders, null);
-        };
-
-        Battle.prototype.strike = function (attackers, defenders, shielded) {
-            var groupsByDmg = new Map(), t, a;
-            attackers.forEach(function (u) {
-                for (var t = 1; t <= 5; t++) {
-                    var g = groupsByDmg.get(u.dmg[t]);
-                    if (!g) {
-                        g = {dmg: u.dmg[t], byType: [[], [], [], [], [], []]};
-                        groupsByDmg.set(u.dmg[t], g);
+            if (str.length > 14) {
+                var keep = str.slice(0, 14), rest = str.slice(14);
+                var up = rest[0] > "5" || (rest[0] === "5" && (/[1-9]/.test(rest.slice(1)) || Number(keep[13]) % 2 === 1));
+                if (up) {
+                    keep = (BigInt(keep) + 1n).toString();
+                    if (keep.length > 14) {
+                        keep = keep.slice(0, 14);
+                        decpt++;
                     }
-                    g.byType[t].push(u);
                 }
-            });
-            var groups = Array.from(groupsByDmg.values());
-            groups.forEach(function (g) {
-                for (var t = 1; t <= 5; t++) g.byType[t].sort(bySizeNationForce);
-            });
-            groups.sort(function (x, y) { return y.dmg - x.dmg; });
-
-            var targets = [];
-            for (t = 0; t <= 5; t++) targets.push([[], [], [], [], [], []]);
-            defenders.forEach(function (d) {
-                for (var a = 1; a <= 5; a++) targets[d.type][a].push(d);
-            });
-            for (t = 1; t <= 5; t++) {
-                for (a = 1; a <= 5; a++) {
-                    (function (a) {
-                        targets[t][a].sort(function (x, y) {
-                            if (x.arm[a] !== y.arm[a]) return x.arm[a] < y.arm[a] ? -1 : 1;
-                            return bySizeNationForce(x, y);
-                        });
-                    })(a);
-                }
+                str = keep;
             }
+            return {digits: str.replace(/0+$/, ""), decpt: decpt};
+        }
 
-            for (var gi = 0; gi < groups.length; gi++) {
-                var g = groups[gi];
-                nextType:
+        function phpEcho(v) {
+            if (v === null || v === undefined) return "";
+            if (typeof v !== "number") return String(v);
+            if (v !== v) return "NAN";
+            if (v === Infinity) return "INF";
+            if (v === -Infinity) return "-INF";
+            if (v === 0) return 1 / v < 0 ? "-0" : "0";
+            var d = digits14(Math.abs(v)), digits = d.digits, decpt = d.decpt, out;
+            if (decpt < 0 ? decpt < -3 : decpt > 14) {
+                var e = decpt - 1;
+                out = digits[0] + "." + (digits.length > 1 ? digits.slice(1) : "0") + "E" + (e < 0 ? "-" : "+") + Math.abs(e);
+            } else if (decpt < 0) {
+                out = "0." + "0".repeat(-decpt) + digits;
+            } else {
+                var intPart = "";
+                for (var i = 0; i < decpt; i++) intPart += i < digits.length ? digits[i] : "0";
+                out = digits.length > decpt ? (decpt === 0 ? "0" : intPart) + "." + digits.slice(decpt) : intPart;
+            }
+            return (v < 0 ? "-" : "") + out;
+        }
+
+        function sqlUnsigned(s) {
+            if (s === undefined || s === null) return null;
+            if (!/^[+-]?(\d+\.?\d*|\.\d+)([eE][+-]?\d+)?$/.test(s)) return null;
+            var n = Number(s), r;
+            if (/[eE]/.test(s)) {
+                r = Math.floor(n);
+                var frac = n - r;
+                if (frac > 0.5 || (frac === 0.5 && r % 2 !== 0)) r += 1;
+            } else {
+                r = n < 0 ? -Math.round(-n) : Math.round(n);
+            }
+            return Math.min(Math.max(r, 0), 4294967295);
+        }
+
+        function warCalc(form) {
+            var post = function (name) { return own(form, name) && form[name].length > 0 ? form[name][0] : undefined; };
+            var postArray = function (name) { return own(form, name + "[]") ? form[name + "[]"] : undefined; };
+            var str = function (v) { return v === undefined || v === null ? "" : String(v); };
+            var fieldAt = function (name, i) {
+                var vals = postArray(name);
+                return vals !== undefined && i < vals.length ? vals[i] : undefined;
+            };
+
+            var units = [], nextID = 0, count = 0;
+            var insertSide = function (types, attacking) {
+                if (types === undefined || types.length === 0) return;
+                types.forEach(function (whichType) {
+                    if (phpEmpty(whichType)) return;
+                    var w = fieldAt("weapon", count), a = fieldAt("armor", count), s = fieldAt("size", count), t = fieldAt("training", count);
+                    count += 1;
+                    var name = whichType + "_" + str(w) + "_" + str(a) + "_size_" + str(s) + "_train_" + str(t);
+                    var type = own(forcetypes, whichType) ? forcetypes[whichType] : null;
+                    var weaponID = own(weapontypes, str(w)) ? weapontypes[str(w)] : 0;
+                    var armorID = own(armortypes, str(a)) ? armortypes[str(a)] : null;
+                    var size = sqlUnsigned(s), training = sqlUnsigned(t);
+                    if (type === null || armorID === null || size === null || training === null || /['\\]/.test(name)) return;
+                    nextID++;
+                    units.push({forceID: nextID, nationID: attacking ? 1 : 2, attacking: attacking,
+                        name: Array.from((attacking ? "A_" : "D_") + name).slice(0, 50).join(""),
+                        size: size, training: training, storedType: type, weaponID: weaponID, armorID: armorID});
+                });
+            };
+            insertSide(postArray("attack_type"), true);
+            insertSide(postArray("defend_type"), false);
+
+            var bySizeDesc = function (list) {
+                return list.slice().sort(function (x, y) { return y.size - x.size || x.forceID - y.forceID; });
+            };
+            var side = function (attacking) { return units.filter(function (u) { return u.attacking === attacking; }); };
+            var zeroByType = function () { var o = {}; forcetypeNames.forEach(function (n) { o[n] = 0; }); return o; };
+            var initial = {"true": zeroByType(), "false": zeroByType()};
+            var remaining = {"true": zeroByType(), "false": zeroByType()};
+            var totalDamage = {"true": [null, null, null, null, null, null], "false": [null, null, null, null, null, null]};
+            [true, false].forEach(function (attacking) {
+                side(attacking).forEach(function (u) { initial[attacking][forcetypeNames[u.storedType - 1]] += u.size; });
+                bySizeDesc(side(attacking)).forEach(function (u) {
+                    for (var t = 1; t <= 5; t++) {
+                        var per = (u.weaponID !== 0 && own(WEAPONDEFS, u.weaponID)) ? WEAPONDEFS[u.weaponID][t - 1] : .25;
+                        totalDamage[attacking][t] = (totalDamage[attacking][t] || 0) + per * u.size;
+                    }
+                });
+            });
+
+            var out = "Defender Bonus: " + str(post("defender_bonus")) + "<h2>Battle Result</h2>";
+
+            units.forEach(function (u) {
+                u.hits = u.size;
+                u.damage = null;
+                u.type = u.storedType;
+                u.dmg = [0, 0, 0, 0, 0, 0];
+                u.arm = [0, 0, 0, 0, 0, 0];
+                for (var t = 1; t <= 5; t++) {
+                    if (u.storedType === 6) {
+                        u.dmg[t] = 10;
+                        u.arm[t] = .1;
+                    } else {
+                        u.dmg[t] = (u.weaponID !== 0 && own(WEAPONDEFS, u.weaponID)) ? WEAPONDEFS[u.weaponID][t - 1] : .25;
+                        u.arm[t] = (u.armorID !== 0 && own(ARMORDEFS, u.armorID)) ? ARMORDEFS[u.armorID][t - 1] : 1;
+                    }
+                }
+                if (u.storedType === 6) u.type = 5;
+            });
+
+            var invaders = side(true), repellers = side(false);
+            var damageInfo = new Map();
+            var record = function (att, def, dmg) {
+                if (!damageInfo.has(att)) damageInfo.set(att, new Map());
+                var row = damageInfo.get(att);
+                if (!row.has(def)) row.set(def, {hits: 0, damage: null});
+                var h = row.get(def);
+                h.hits += 1;
+                h.damage = (h.damage || 0) + dmg;
+            };
+            var bySizeNationForce = function (x, y) {
+                return y.size - x.size || x.nationID - y.nationID || x.forceID - y.forceID;
+            };
+            var strike = function (attackers, defenders, shielded) {
+                var groups = new Map(), t, a;
+                attackers.forEach(function (u) {
+                    for (var t = 1; t <= 5; t++) {
+                        if (!groups.has(u.dmg[t])) groups.set(u.dmg[t], [[], [], [], [], [], []]);
+                        groups.get(u.dmg[t])[t].push(u);
+                    }
+                });
+                var order = Array.from(groups.keys()).sort(function (x, y) { return y - x; });
+                groups.forEach(function (byType) {
+                    for (var t = 1; t <= 5; t++) byType[t].sort(bySizeNationForce);
+                });
+                var targets = [];
+                for (t = 0; t <= 5; t++) targets.push([[], [], [], [], [], []]);
+                defenders.forEach(function (d) {
+                    for (var a = 1; a <= 5; a++) targets[d.type][a].push(d);
+                });
                 for (t = 1; t <= 5; t++) {
-                    var atts = g.byType[t];
-                    for (var ai = 0; ai < atts.length; ai++) {
-                        var att = atts[ai];
-                        while (att.hits > 0) {
-                            var defs = targets[t][att.type];
-                            if (defs.length === 0) break;
-                            var fought = false;
-                            defenderLoop:
-                            for (var di = 0; di < defs.length; di++) {
-                                var def = defs[di];
-                                var dmg = round(g.dmg * def.arm[att.type] * TRAINING_POW[att.training - def.training + 20], 3);
-                                if (shielded && shielded(def)) dmg *= .75;
-                                while (def.size > def.damage) {
-                                    fought = true;
-                                    def.damage += dmg;
-                                    this.record(att, def, dmg);
-                                    att.hits--;
-                                    if (att.hits === 0) break defenderLoop;
+                    for (a = 1; a <= 5; a++) {
+                        (function (a) {
+                            targets[t][a].sort(function (x, y) { return x.arm[a] - y.arm[a] || bySizeNationForce(x, y); });
+                        })(a);
+                    }
+                }
+                for (var gi = 0; gi < order.length; gi++) {
+                    var groupDamage = order[gi], byType = groups.get(groupDamage);
+                    nextType:
+                    for (t = 1; t <= 5; t++) {
+                        var atts = byType[t];
+                        for (var ai = 0; ai < atts.length; ai++) {
+                            var att = atts[ai];
+                            while (att.hits > 0) {
+                                var fought = false;
+                                var defs = targets[t][att.type];
+                                if (defs.length === 0) break;
+                                defenderLoop:
+                                for (var di = 0; di < defs.length; di++) {
+                                    var def = defs[di];
+                                    var dmg = phpRound(groupDamage * def.arm[att.type] * trainingFactor(att.training - def.training), 3);
+                                    if (shielded) dmg = dmg * .75;
+                                    while (def.damage === null || def.size > def.damage) {
+                                        fought = true;
+                                        def.damage = (def.damage || 0) + dmg;
+                                        record(att, def, dmg);
+                                        att.hits--;
+                                        if (att.hits === 0) break defenderLoop;
+                                    }
                                 }
-                            }
-                            if (!fought) {
-                                continue nextType;
+                                if (!fought) continue nextType;
                             }
                         }
                     }
                 }
-            }
-        };
-
-        Battle.prototype.record = function (att, def, dmg) {
-            var key = att.forceID + "," + def.forceID;
-            var h = this.hitByID[key];
-            if (!h) {
-                h = {attacker: att, defender: def, hits: 0, damage: 0};
-                this.hitByID[key] = h;
-                this.hits.push(h);
-            }
-            h.hits++;
-            h.damage += dmg;
-        };
-
-        Battle.prototype.hitList = function () {
-            var order = {}, n = 0;
-            this.hits.forEach(function (h) {
-                if (!own(order, h.attacker.forceID)) order[h.attacker.forceID] = n++;
-            });
-            return this.hits.slice().sort(function (x, y) {
-                return order[x.attacker.forceID] - order[y.attacker.forceID];
-            });
-        };
-
-        function losses(u) {
-            return Math.floor(round(u.damage, 6));
-        }
-
-        function warCalc(form) {
-            var post = function (name) { return own(form, name) && form[name].length > 0 ? form[name][0] : ""; };
-            var attackTypes = own(form, "attack_type[]") ? form["attack_type[]"] : [];
-            var defendTypes = own(form, "defend_type[]") ? form["defend_type[]"] : [];
-            var field = function (name, i) {
-                var vals = own(form, name + "[]") ? form[name + "[]"] : [];
-                return i < vals.length ? vals[i] : "";
             };
-            var b = new Battle();
-            if (post("defender_bonus") === "Yes") b.shielded = function () { return true; };
-            var nextID = 0;
-            var typeOf = new Map();
-            var add = function (typeName, i, attacking) {
-                if (!own(calcForceTypes, typeName)) return;
-                var typ = calcForceTypes[typeName];
-                var weapon = field("weapon", i), armor = field("armor", i);
-                var size = toInt(field("size", i)), training = toInt(field("training", i));
-                if (size < 1) return;
-                if (training > 20) training = 20;
-                else if (training < 0) training = 0;
-                var prefix = attacking ? "A_" : "D_";
-                var weaponID = own(calcWeapons, weapon) ? calcWeapons[weapon] : 0;
-                var armorID = own(calcArmor, armor) ? calcArmor[armor] : 0;
-                nextID++;
-                var name = esc(prefix + typeName + "_" + weapon + "_" + armor + "_size_" + size + "_train_" + training);
-                var u = newUnit(nextID, attacking ? 1 : 2, name, size, training, typ, weaponID, armorID, attacking);
-                typeOf.set(u, typeName);
-                b.units.push(u);
-            };
-            attackTypes.forEach(function (t, i) { add(t, i, true); });
-            defendTypes.forEach(function (t, j) { add(t, attackTypes.length + j, false); });
+            if (repellers.length > 0) {
+                strike(invaders, repellers, post("defender_bonus") === "Yes");
+                strike(repellers, invaders, false);
+            }
 
-            var zeroTypes = function () { var o = {}; calcTypeOrder.forEach(function (n) { o[n] = 0; }); return o; };
-            var initial = {"true": zeroTypes(), "false": zeroTypes()};
-            var remaining = {"true": zeroTypes(), "false": zeroTypes()};
-            var damage = {"true": [0, 0, 0, 0, 0, 0], "false": [0, 0, 0, 0, 0, 0]};
-            b.units.forEach(function (u) {
-                initial[u.attacking][typeOf.get(u)] += u.size;
-                for (var t = 1; t <= 5; t++) damage[u.attacking][t] += u.dmg[t] * u.size;
+            damageInfo.forEach(function (row, att) {
+                row.forEach(function (h, def) {
+                    out += att.name + " (size " + att.size + ") hit " + def.name + " (size " + def.size + ") for " +
+                        phpEcho(phpRound(h.damage, 6)) + " damage (" + h.hits + " hits)<br>";
+                });
             });
-            b.run();
 
-            var out = "Defender Bonus: " + esc(post("defender_bonus")) + "<h2>Battle Result</h2>";
-            b.hitList().forEach(function (h) {
-                out += h.attacker.name + " (size " + h.attacker.size + ") hit " + h.defender.name + " (size " + h.defender.size +
-                    ") for " + phpFloat(round(h.damage, 6)) + " damage (" + h.hits + " hits)<br>";
-            });
-            b.units.forEach(function (u) {
-                var loss = losses(u), left = u.size;
-                if (loss > 0 && loss < u.size) {
-                    out += u.name + " lost " + loss + " size!<br>";
-                    left -= loss;
-                } else if (loss > 0) {
-                    out += u.name + " IS KILL<br>";
-                    left = 0;
+            var alive = [];
+            units.forEach(function (u) {
+                var loss = Math.floor(phpRound(u.damage, 6));
+                var left = u.size;
+                if (loss > 0) {
+                    if (loss < u.size) {
+                        out += u.name + " lost " + phpEcho(loss) + " size!<br>";
+                        left = u.size - loss;
+                    } else {
+                        out += u.name + " IS KILL<br>";
+                        left = null;
+                    }
                 }
-                remaining[u.attacking][typeOf.get(u)] += left;
+                if (left !== null) remaining[u.attacking][forcetypeNames[u.storedType - 1]] += left;
             });
-            var summary = function (attacking, heading, label) {
+
+            var summary = function (attacking, heading) {
+                var dmg = totalDamage[attacking];
                 out += "<h2>" + heading + " Summary:</h2>";
                 out += '<div><table border="1" style="float: left"><tr><td>Attack vs</td><td>Total Damage</td></tr>';
-                for (var t = 1; t <= 5; t++) {
-                    out += "<tr><td>" + calcTypeOrder[t - 1] + "</td><td>" + phpFloat(damage[attacking][t]) + "</td></tr>";
-                }
+                out += "<tr><td>Cavalry</td><td>" + phpEcho(dmg[1]) + "</td></tr>";
+                out += "<tr><td>Tanks</td><td>" + phpEcho(dmg[2]) + "</td></tr>";
+                out += "<tr><td>Pegasi</td><td>" + phpEcho(dmg[3]) + "</td></tr>";
+                out += "<tr><td>Unicorns</td><td>" + phpEcho(dmg[4]) + "</td></tr>";
+                out += "<tr><td>Naval</td><td>" + phpEcho(dmg[5]) + "</td></tr>";
+                if (attacking) out += "<tr><td>Alicorns</td><td>" + phpEcho(dmg[5]) + "</td></tr>";
                 out += "</table></div>";
-                out += '<div><table border="1" style="float: left"><tr><td>' + label + "</td><td>Initial</td><td>Died</td><td>Remaining</td></tr>";
-                calcTypeOrder.forEach(function (name) {
-                    if (attacking && name === "Alicorns") return;
-                    var init = initial[attacking][name], rem = remaining[attacking][name];
-                    out += "<tr><td>" + name + "</td><td>" + init + " </td><td>" + (init - rem) + "</td><td>" + rem + "</td></tr>";
+                out += '<div><table border="1" style="float: left"><tr><td>' + heading + "</td><td>Initial</td><td>Died</td><td>Remaining</td></tr>";
+                forcetypeNames.forEach(function (key) {
+                    if (attacking && key === "Alicorns") return;
+                    var init = initial[attacking][key], rem = remaining[attacking][key];
+                    out += "<tr><td>" + key + "</td><td>" + init + " </td><td>" + (init - rem) + "</td><td>" + rem + "</td></tr>";
                 });
                 out += "</table></div>";
             };
-            summary(true, "Attackers", "Attackers");
-            summary(false, "Defenders", "Defenders");
+            summary(true, "Attackers");
+            summary(false, "Defenders");
             return out;
         }
 
