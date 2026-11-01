@@ -3,65 +3,50 @@
 <head>
     <meta charset="utf-8">
     <title>Ovipositor Calculator</title>
-    <!--
-        Standalone version of huge-ovipositor.html.
-
-        The original page posts to huge-ovipositor-backend.php, which runs the
-        battle on the server (internal/clop/calculators.go + battle.go) using
-        the weapondefs/armordefs tables. This file carries that backend and
-        those tables in the script below, so it works opened straight from
-        disk with no server, database or network. The result opens in a new
-        tab, the same as the original form's target="_blank".
-    -->
     <script>
-        // ===== ENGINE START (port of pageWarCalc and the battle engine) =====
-
-        // weapondefs (clop/tables with data.sql): dmg vs cavalry, tanks, pegasi, unicorns, naval
         var WEAPONDEFS = {
-            1:  [0.80, 0.80, 0.80, 0.80, 0.80], // PRC-E6
-            2:  [0.90, 0.90, 0.90, 0.90, 0.90], // PRC-E7
-            3:  [1.00, 1.00, 1.00, 1.00, 1.10], // PRC-E8
-            4:  [1.50, 1.00, 1.00, 1.00, 1.00], // ACFU
-            5:  [1.00, 1.50, 1.00, 1.00, 1.00], // ATFU
-            6:  [1.00, 1.00, 1.50, 1.00, 1.00], // APFU
-            7:  [1.00, 1.00, 1.00, 1.50, 1.00], // AUFU
-            8:  [1.30, 1.10, 1.10, 1.10, 1.10], // K9P
-            9:  [1.20, 1.40, 1.20, 1.20, 1.20], // ELBO-GRS
-            10: [1.25, 1.25, 1.25, 1.70, 1.25], // Chem-Light Battery
-            11: [1.50, 1.25, 1.25, 1.25, 1.25], // Prop Wash
-            12: [1.30, 1.30, 1.30, 1.30, 1.60], // Steam Bucket
-            13: [1.40, 2.20, 1.40, 1.40, 1.40], // Canopy Lights
-            14: [2.20, 1.90, 1.90, 1.90, 1.90], // Long Stand
-            15: [1.95, 1.95, 1.95, 1.95, 2.20], // Long Weight
-            16: [2.00, 2.00, 3.00, 2.00, 2.00], // Grid Squares
-            17: [1.00, 1.35, 1.00, 1.00, 1.00], // Shoreline
-            18: [1.10, 1.10, 1.10, 1.35, 1.10], // Water Hammer
-            19: [1.25, 1.25, 1.25, 1.25, 1.25]  // Waterline Eraser
+            1:  [0.80, 0.80, 0.80, 0.80, 0.80],
+            2:  [0.90, 0.90, 0.90, 0.90, 0.90],
+            3:  [1.00, 1.00, 1.00, 1.00, 1.10],
+            4:  [1.50, 1.00, 1.00, 1.00, 1.00],
+            5:  [1.00, 1.50, 1.00, 1.00, 1.00],
+            6:  [1.00, 1.00, 1.50, 1.00, 1.00],
+            7:  [1.00, 1.00, 1.00, 1.50, 1.00],
+            8:  [1.30, 1.10, 1.10, 1.10, 1.10],
+            9:  [1.20, 1.40, 1.20, 1.20, 1.20],
+            10: [1.25, 1.25, 1.25, 1.70, 1.25],
+            11: [1.50, 1.25, 1.25, 1.25, 1.25],
+            12: [1.30, 1.30, 1.30, 1.30, 1.60],
+            13: [1.40, 2.20, 1.40, 1.40, 1.40],
+            14: [2.20, 1.90, 1.90, 1.90, 1.90],
+            15: [1.95, 1.95, 1.95, 1.95, 2.20],
+            16: [2.00, 2.00, 3.00, 2.00, 2.00],
+            17: [1.00, 1.35, 1.00, 1.00, 1.00],
+            18: [1.10, 1.10, 1.10, 1.35, 1.10],
+            19: [1.25, 1.25, 1.25, 1.25, 1.25]
         };
 
-        // armordefs (clop/tables with data.sql): damage taken from cavalry, tanks, pegasi, unicorns, naval
         var ARMORDEFS = {
-            1:  [0.40, 0.80, 0.80, 0.80, 0.80], // Barding
-            2:  [0.65, 0.40, 0.65, 0.65, 0.65], // Bigdog
-            3:  [0.50, 0.50, 0.50, 0.50, 0.50], // Nope
-            4:  [0.30, 0.65, 0.65, 0.65, 0.65], // Trundle
-            5:  [0.55, 0.55, 0.55, 0.55, 0.35], // Shepherd
-            6:  [0.45, 0.35, 0.45, 0.45, 0.45], // Ohno
-            7:  [0.35, 0.40, 0.40, 0.30, 0.40], // Titan
-            8:  [0.80, 0.80, 0.35, 0.80, 0.80], // Cooler
-            9:  [0.30, 0.70, 0.70, 0.70, 0.70], // Wonder
-            10: [0.45, 0.45, 0.45, 0.45, 0.40], // Griffin
-            11: [0.35, 0.35, 0.45, 0.45, 0.45], // Dragon
-            12: [0.30, 0.65, 0.65, 0.65, 0.65], // Hornshield
-            13: [0.55, 0.55, 0.55, 0.30, 0.55], // Librarian
-            14: [0.45, 0.45, 0.45, 0.45, 0.35], // Shining
-            15: [0.35, 0.40, 0.35, 0.40, 0.40], // D2A
-            16: [0.65, 0.65, 0.65, 0.65, 0.30], // C-PON3
-            17: [0.35, 0.35, 0.55, 0.55, 0.55], // Esohes
-            18: [0.40, 0.40, 0.40, 0.40, 0.40]  // Shubidu
+            1:  [0.40, 0.80, 0.80, 0.80, 0.80],
+            2:  [0.65, 0.40, 0.65, 0.65, 0.65],
+            3:  [0.50, 0.50, 0.50, 0.50, 0.50],
+            4:  [0.30, 0.65, 0.65, 0.65, 0.65],
+            5:  [0.55, 0.55, 0.55, 0.55, 0.35],
+            6:  [0.45, 0.35, 0.45, 0.45, 0.45],
+            7:  [0.35, 0.40, 0.40, 0.30, 0.40],
+            8:  [0.80, 0.80, 0.35, 0.80, 0.80],
+            9:  [0.30, 0.70, 0.70, 0.70, 0.70],
+            10: [0.45, 0.45, 0.45, 0.45, 0.40],
+            11: [0.35, 0.35, 0.45, 0.45, 0.45],
+            12: [0.30, 0.65, 0.65, 0.65, 0.65],
+            13: [0.55, 0.55, 0.55, 0.30, 0.55],
+            14: [0.45, 0.45, 0.45, 0.45, 0.35],
+            15: [0.35, 0.40, 0.35, 0.40, 0.40],
+            16: [0.65, 0.65, 0.65, 0.65, 0.30],
+            17: [0.35, 0.35, 0.55, 0.55, 0.55],
+            18: [0.40, 0.40, 0.40, 0.40, 0.40]
         };
 
-        // Names used by the calculator form.
         var calcForceTypes = {"Cavalry": 1, "Tanks": 2, "Pegasi": 3, "Unicorns": 4, "Naval": 5, "Alicorns": 6};
         var calcTypeOrder = ["Cavalry", "Tanks", "Pegasi", "Unicorns", "Naval", "Alicorns"];
         var calcWeapons = {"ScroungedWeapons": 0, "PRC-E6": 1, "PRC-E7": 2, "PRC-E8": 3, "ACFU": 4, "ATFU": 5, "APFU": 6, "AUFU": 7, "K9P": 8,
@@ -71,9 +56,6 @@
             "Cooler": 8, "Wonder": 9, "Griffin": 10, "Dragon": 11, "Hornshield": 12, "Librarian": 13, "Shining": 14, "D2A": 15, "C-PON3": 16,
             "Esohes": 17, "Shubidu": 18};
 
-        // 1.5^(k/20) for k = -20..20, exactly as the server's Go math.Pow
-        // computes it (JavaScript's Math.pow differs in the last bit for
-        // some of these, which can change a rounded hit).
         var TRAINING_POW = [0.6666666666666666, 0.6803201024329685, 0.6942531626616071, 0.7084715741045352, 0.7229811807984657,
             0.7377879464668811, 0.7528979569712371, 0.7683174228123669, 0.7840526816831158, 0.8001102010732513, 0.8164965809277261,
             0.8332185563593787, 0.8502830004171938, 0.8676969269112558, 0.8854674932955561, 0.9036020036098448, 0.9221079114817278,
@@ -86,7 +68,6 @@
             return Object.prototype.hasOwnProperty.call(obj, key);
         }
 
-        // toInt parses the leading integer of a string, like PHP (int) casts.
         function toInt(s) {
             s = String(s).replace(/^[ \t\n\r\v\f]+/, "");
             var m = /^[-+]?[0-9]*/.exec(s)[0];
@@ -94,21 +75,18 @@
             return parseInt(m, 10);
         }
 
-        // round mirrors PHP round(): half away from zero at the given precision.
         function round(f, precision) {
             var p = Math.pow(10, precision);
             var x = f * p;
             return (x < 0 ? -Math.round(-x) : Math.round(x)) / p;
         }
 
-        // esc mirrors Go's html.EscapeString.
         function esc(s) {
             return String(s).replace(/[&'<>"]/g, function (c) {
                 return {"&": "&amp;", "'": "&#39;", "<": "&lt;", ">": "&gt;", '"': "&#34;"}[c];
             });
         }
 
-        // phpFloat prints a float the way the server does (Go %G, 14 digits).
         function phpFloat(f) {
             if (f === Math.trunc(f) && Math.abs(f) < 1e15) return String(f);
             if (isNaN(f)) return "NaN";
@@ -137,7 +115,6 @@
             return sign + intPart + (decimals > 0 ? "." + frac : "");
         }
 
-        // newUnit builds a battle unit (Alicorns fight as naval).
         function newUnit(forceID, nationID, name, size, training, type, weaponID, armorID, attacking) {
             var u = {forceID: forceID, nationID: nationID, name: name, size: size, training: training, type: type,
                 attacking: attacking, dmg: [0, 0, 0, 0, 0, 0], arm: [0, 0, 0, 0, 0, 0], hits: 0, damage: 0};
@@ -174,8 +151,6 @@
             return this.units.filter(function (u) { return u.attacking === attacking; });
         };
 
-        // run fights one round: invaders and repellers strike simultaneously,
-        // both sides getting their full number of hits.
         Battle.prototype.run = function () {
             this.hitByID = {};
             this.units.forEach(function (u) { u.hits = u.size; });
@@ -185,9 +160,6 @@
             this.strike(repellers, invaders, null);
         };
 
-        // strike: units doing the most damage go first; within that, targets
-        // are taken in type order and attackers by size. Defenders with the
-        // best armor against the attacker soak hits first, then the largest.
         Battle.prototype.strike = function (attackers, defenders, shielded) {
             var groupsByDmg = new Map(), t, a;
             attackers.forEach(function (u) {
@@ -206,7 +178,6 @@
             });
             groups.sort(function (x, y) { return y.dmg - x.dmg; });
 
-            // targets[defType][attType]: defenders of defType, best armor vs attType first.
             var targets = [];
             for (t = 0; t <= 5; t++) targets.push([[], [], [], [], [], []]);
             defenders.forEach(function (d) {
@@ -248,7 +219,6 @@
                                 }
                             }
                             if (!fought) {
-                                // Every target of this type is already destroyed.
                                 continue nextType;
                             }
                         }
@@ -269,7 +239,6 @@
             h.damage += dmg;
         };
 
-        // hitList lists who hit whom, grouped by attacker in the order fighting began.
         Battle.prototype.hitList = function () {
             var order = {}, n = 0;
             this.hits.forEach(function (h) {
@@ -280,18 +249,14 @@
             });
         };
 
-        // losses is the whole number of size a unit lost.
         function losses(u) {
             return Math.floor(round(u.damage, 6));
         }
 
-        // warCalc takes the submitted form fields ({name: [values...]}, the
-        // same shape the server sees) and returns the result page's HTML.
         function warCalc(form) {
             var post = function (name) { return own(form, name) && form[name].length > 0 ? form[name][0] : ""; };
             var attackTypes = own(form, "attack_type[]") ? form["attack_type[]"] : [];
             var defendTypes = own(form, "defend_type[]") ? form["defend_type[]"] : [];
-            // Attacker rows come first in the shared weapon/armor/size/training arrays.
             var field = function (name, i) {
                 var vals = own(form, name + "[]") ? form[name + "[]"] : [];
                 return i < vals.length ? vals[i] : "";
@@ -337,12 +302,10 @@
             });
             b.units.forEach(function (u) {
                 var loss = losses(u), left = u.size;
-                if (loss <= 0) {
-                    // untouched
-                } else if (loss < u.size) {
+                if (loss > 0 && loss < u.size) {
                     out += u.name + " lost " + loss + " size!<br>";
                     left -= loss;
-                } else {
+                } else if (loss > 0) {
                     out += u.name + " IS KILL<br>";
                     left = 0;
                 }
@@ -368,36 +331,28 @@
             return out;
         }
 
-        // ===== ENGINE END =====
-
         var templateRowAttacker;
         var templateRowDefender;
 
-        // Function to add a new row
         function addRow(attackOrDefend, rowContents) {
             if (attackOrDefend != 'attacker' && attackOrDefend != 'defender') {
                 alert("Invalid row type");
                 return false;
             }
 
-            // Create new row from table
             var newRow = document.querySelector("table." + attackOrDefend).tBodies[0].insertRow();
 
-            // Get row contents from the template
             var template = attackOrDefend == 'attacker' ? templateRowAttacker : templateRowDefender;
             newRow.append(template.content.cloneNode(true));
 
-            // If contents provided, prepopulate row
             if (rowContents != null) {
                 try {
-                    // Pre-bind the dropdowns to the chosen type
                     bindDropdownsInner(rowContents["type"], newRow.querySelector(".weapon"), newRow.querySelector(".armor"));
 
-                    // For each field on the contents object, populate the matching field
                     for (var field in rowContents) {
                         var elem = newRow.querySelector("." + field);
                         if (elem != null) {
-                            elem.value = rowContents[field].toString().trim().split(" ").join(""); // Remove any spaces from names
+                            elem.value = rowContents[field].toString().trim().split(" ").join("");
                         }
                     }
                 }
@@ -408,7 +363,6 @@
             }
         }
 
-        // Function to remove the selected row
         function removeRow(button) {
             button.closest("tr").remove();
         }
@@ -417,12 +371,11 @@
             document.querySelectorAll("table." + attackOrDefend + " .ibtnDel").forEach(function (btn) { btn.click(); });
         }
 
-        // Function to verify that the data is correct before calculating
         function preSubmitChecks() {
             var preventSubmit = false;
             var typeDropdowns = document.querySelectorAll('select.type');
             for (var i = 0; i < typeDropdowns.length; i++) {
-                if (typeDropdowns[i].selectedIndex == 0) { // Unselected
+                if (typeDropdowns[i].selectedIndex == 0) {
                     alert("Please select a valid type");
                     preventSubmit = true;
                 }
@@ -449,46 +402,24 @@
                 "Naval": [["ScroungedArmor", "Scrounged Armor"], ["C-PON3", "C-PON3"], ["Esohes", "Esohes"], ["Shubidu", "Shubidu"]]
             };
 
-            // Clear previous options
             weaponDropdown.innerHTML = "";
             armorDropdown.innerHTML = "";
 
-            // Add options based on the selected type
             (own(options, type) ? options[type] : []).forEach(function (o) { weaponDropdown.add(new Option(o[1], o[0])); });
             (own(armors, type) ? armors[type] : []).forEach(function (o) { armorDropdown.add(new Option(o[1], o[0])); });
         }
 
         function importRows(attackOrDefend) {
-            /** Example import format
-            4_ACFU_Nope
-            Cavalry
-            ACFU
-            Nope
-            Size: 200
-            Training: 20
-            ...
-            Alicorns are an edge case. Example format:
-            UnitName
-            Alicorns
-            Size: 30
-            Training: 20
-            */
-
-            // Check if any data provided
             var text = document.getElementById("txtImport").value;
             if (text.trim().length == 0)
                 return;
 
             try {
-                // Split the text into individual lines
                 var textLines = text.split(/\r?\n|\r/);
 
-                // Run through each line
                 for (var i = 0; i < textLines.length; i++) {
-                    // If the current line is a valid Training line
                     if (i >= 4 && textLines[i].indexOf("Training:") === 0) {
                         var unit;
-                        // Create a new unit based on the most recent 5 lines
                         if (textLines[i - 2].trim() != "Alicorns") {
                             unit = {
                                 type:       textLines[i - 4].trim(),
@@ -498,7 +429,6 @@
                                 training:   parseInt(textLines[i].split(":")[1].trim())
                             };
                         } else {
-                            // Edge case for Alicorns, as their format is different
                             unit = {
                                 type:       "Alicorns",
                                 weapon:     "Scrounged Weapons",
@@ -511,7 +441,6 @@
                     }
                 }
 
-                // Finally, clear out the textarea upon successful import.
                 document.getElementById("txtImport").value = "";
             }
             catch (err) {
@@ -520,7 +449,6 @@
             }
         }
 
-        // Collect the form exactly as a browser would submit it.
         function formFields(form) {
             var fields = {};
             new FormData(form).forEach(function (value, name) {
@@ -531,7 +459,6 @@
         }
 
         function showResult(html) {
-            // The original form opens the backend's result in a new tab.
             var win = window.open("", "_blank");
             if (win) {
                 win.document.open();
@@ -539,7 +466,6 @@
                 win.document.close();
                 return;
             }
-            // Popup blocked: show the result on this page instead.
             var box = document.getElementById("result");
             box.innerHTML = html;
             box.style.display = "block";
@@ -547,11 +473,9 @@
         }
 
         document.addEventListener("DOMContentLoaded", function () {
-            // Take the row from the HTML defined below as the template row that all future rows will be based on.
             templateRowAttacker = document.getElementById("rowTemplateAttacker");
             templateRowDefender = document.getElementById("rowTemplateDefender");
 
-            // Create initial row
             addRow('attacker');
             addRow('defender');
 
@@ -564,7 +488,6 @@
 
             var form = document.getElementById("calcForm");
 
-            // Type dropdowns refill their row's weapon and armor lists; Remove deletes the row.
             form.addEventListener("change", function (e) {
                 if (e.target.matches("select.type")) {
                     var row = e.target.closest("tr");
@@ -575,12 +498,10 @@
                 if (e.target.matches(".ibtnDel")) removeRow(e.target);
             });
 
-            // Submit button pre-submit checks (before the browser's own min/max validation, as before)
             document.getElementById("btnSubmit").addEventListener("click", function (e) {
                 if (!preSubmitChecks()) e.preventDefault();
             });
 
-            // Submit runs the battle here instead of posting to the server.
             form.addEventListener("submit", function (e) {
                 e.preventDefault();
                 showResult(warCalc(formFields(form)));
@@ -709,7 +630,6 @@
             overflow-y: auto;
         }
 
-        /* Only used when the browser blocks the result tab. */
         #result {
             display: none;
             margin-top: 20px;
